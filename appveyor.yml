@@ -1,0 +1,10 @@
+version: '{build}'
+pull_requests:
+  do_not_increment_build_number: true
+nuget:
+  project_feed: true
+build_script:
+- cmd: msbuild build\build.proj /t:CreateNuGetPackage
+artifacts:
+- path: artifacts\nuget\*.nupkg
+  name: NuGet packagedeploy: off

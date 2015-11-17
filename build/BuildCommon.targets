@@ -1,0 +1,49 @@
+<Project ToolsVersion="12.0"
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <CompileDependsOn>
+      UpdateVersion;
+      $(CompileDependsOn);
+    </CompileDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetVersion">
+    <ReadLinesFromFile File="version.txt">
+      <Output PropertyName="InfoVersion"
+              TaskParameter="Lines"/>
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <Version>$(InfoVersion.Split("-")[0])</Version>
+    </PropertyGroup>
+  </Target>
+  
+  <UsingTask TaskName="WriteAssemblyVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <Version ParameterType="System.String" Required="true" />
+      <InfoVersion ParameterType="System.String" Required="true" />
+      <TempPath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          var contents = "[assembly: System.Reflection.AssemblyVersion(\"" + Version + "\")]\n";
+          contents += "[assembly: System.Reflection.AssemblyFileVersion(\"" + Version + "\")]\n";
+          contents += "[assembly: System.Reflection.AssemblyInformationalVersion(\"" + InfoVersion + "\")]";
+          File.WriteAllText(TempPath + "AssemblyVersion.cs", contents);
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  
+  <Target Name="UpdateVersion" DependsOnTargets="GetVersion">
+    <WriteAssemblyVersion Version="$(Version)" InfoVersion="$(InfoVersion)" TempPath="$(IntermediateOutputPath)" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="$(IntermediateOutputPath)AssemblyVersion.cs" />
+    <FileWrites Include="$(IntermediateOutputPath)AssemblyVersion.cs"/>
+  </ItemGroup>
+
+</Project>

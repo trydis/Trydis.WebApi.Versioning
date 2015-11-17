@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>trydis.webapi.versioning</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://raw.githubusercontent.com/trydis/Trydis.WebApi.Versioning/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/trydis/Trydis.WebApi.Versioning</projectUrl>    
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>    
+    <copyright>Copyright 2015</copyright>
+    <tags>api version versioning</tags>
+  </metadata>
+</package>

@@ -1,0 +1,49 @@
+<Project ToolsVersion="12.0"
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+         DefaultTargets="Build">
+
+  <PropertyGroup>
+    <ProjectName>Trydis.WebApi.Versioning</ProjectName>
+    <ArtifactsDir>..\artifacts\</ArtifactsDir>
+    <SourceDir>..\src\</SourceDir>
+    <NuGetExe>..\tools\nuget\nuget.exe</NuGetExe>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+  </PropertyGroup>
+
+  <Target Name="CreateArtifactsDir">
+    <RemoveDir Directories="$(ArtifactsDir)" />
+    <MakeDir Directories="$(ArtifactsDir)"
+             Condition="!Exists('$(ArtifactsDir)')" />
+    <MakeDir Directories="$(ArtifactsDir)nuget"
+             Condition="!Exists('$(ArtifactsDir)nuget')" />
+  </Target>
+
+  <Target Name="UpdateNuGet"
+          DependsOnTargets="CreateArtifactsDir">
+    <Exec Command="$(NuGetExe) update -self" />
+  </Target>
+
+  <Target Name="RestoreNuGetPackages"
+          DependsOnTargets="UpdateNuGet">
+    <Exec Command="$(NuGetExe) restore $(SourceDir)$(ProjectName).sln" />
+  </Target>
+
+  <Target Name="Build"
+          DependsOnTargets="RestoreNuGetPackages">
+    <MSBuild Targets="Rebuild"
+             Projects="$(SourceDir)$(ProjectName).sln"
+             Properties="Configuration=$(Configuration) "/>
+  </Target>
+
+  <Target Name="CreateNuGetPackage"
+          DependsOnTargets="Build">
+    <Exec Command="$(NuGetExe) pack $(SourceDir)$(ProjectName)\$(ProjectName).csproj -Properties Configuration=$(Configuration) -OutputDirectory $(ArtifactsDir)nuget" />
+  </Target>
+
+  <Target Name="PushNuGetPackage"
+          DependsOnTargets="CreateNuGetPackage">
+    <Exec Command="$(NuGetExe) push $(ArtifactsDir)nuget\*.nupkg $(NuGetCredentials) -Source $(NuGetSource)" />
+  </Target>
+
+</Project>
